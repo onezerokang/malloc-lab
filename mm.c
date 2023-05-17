@@ -17,7 +17,6 @@
 
 #include "mm.h"
 #include "memlib.h"
-
 /*********************************************************
  * NOTE TO STUDENTS: Before you do anything else, please
  * provide your team information in the following struct.
@@ -41,7 +40,6 @@ team_t team = {
 /* rounds up to the nearest multiple of ALIGNMENT */
 #define ALIGN(size) (((size) + (ALIGNMENT-1)) & ~0x7)
 
-
 #define SIZE_T_SIZE (ALIGN(sizeof(size_t)))
 
 /* 할당기 조작을 위한 기본 상수와 매크로 */
@@ -53,8 +51,8 @@ team_t team = {
 
 #define PACK(size, alloc) ((size) | (alloc)) // 정확히 어떤 매크로 함수일까?
 
-#define GET(p) (*(unsigned int *)(p)) // p가 참조하는 워드 리턴
-#define PUT(p, val) (*(unsigned int *)(p) = (val)) // p가 참조하는 워드에 val 저장
+#define GET(p) (*(unsigned int*)(p)) // p가 참조하는 워드 리턴
+#define PUT(p, val) (*(unsigned int*)(p) = (val)) // p가 참조하는 워드에 val 저장
 
 #define GET_SIZE(p) (GET(p) & ~0x7) // 헤더 또는 풋터에 저장된 size 리턴
 #define GET_ALLOC(p) (GET(p) & 0x1) // 헤더 또는 풋터에 저장된 할당 비트 리턴
@@ -65,7 +63,7 @@ team_t team = {
 #define NEXT_BLKP(bp) ((char *)(bp) + GET_SIZE(((char *)(bp) - WSIZE))) // 다음 블록 포인터 리턴
 #define PREV_BLKP(bp) ((char *)(bp) - GET_SIZE(((char *)(bp) - DSIZE))) // 이전 블록 포인터 리턴
 
-static void *heap_listp;
+static char *heap_listp;
 
 static void *extend_heap(size_t words);
 static void *find_fit(size_t asize);
@@ -98,7 +96,6 @@ static void *extend_heap(size_t words) {
     char *bp; // 왜 블록 포인터는 하필 char를 참조할까?
     size_t size;
 
-    // ??
     size = (words % 2) ? (words + 1) * WSIZE : words * WSIZE;
     if ((long)(bp = mem_sbrk(size)) == -1) {
         return NULL;
@@ -235,7 +232,7 @@ void *mm_realloc(void *ptr, size_t size)
     newptr = mm_malloc(size);
     if (newptr == NULL)
       return NULL;
-    copySize = *(size_t *)((char *)oldptr - SIZE_T_SIZE);
+    copySize = GET_SIZE(HDRP(oldptr));
     if (size < copySize)
       copySize = size;
     memcpy(newptr, oldptr, copySize);
